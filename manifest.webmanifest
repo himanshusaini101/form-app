@@ -1,0 +1,24 @@
+{
+ "name": "अनाधिकृत निर्माण प्रतिवेदन",
+ "short_name": "प्रतिवेदन",
+ "lang": "hi",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "theme_color": "#1f3fd1",
+ "background_color": "#eef0f4",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}

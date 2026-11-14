@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3fd1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>अनाधिकृत निर्माण प्रतिवेदन</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#eef0f4;--card:#fff;--fg:#1c2330;--mut:#5b6678;--acc:#1f3fd1;--bd:#ccd2dd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1e232c;--fg:#e6e9ef;--mut:#9aa4b5;--acc:#7f95ff;--bd:#38404d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans Devanagari","Mangal",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.panel h2{margin:0 0 8px;font-size:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,.btn{font:inherit;font-size:14px;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.6;cursor:wait}
+#msg{font-size:13px;color:var(--mut)}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.th{position:relative;width:96px;height:96px;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover}
+.th button{position:absolute;top:2px;right:2px;padding:0 6px;font-size:13px;line-height:20px}
+.scroll{overflow:hidden}
+@media (max-width:600px){.wrap{padding:10px}.bar button{flex:1 1 100%}}
+/* ---------- the form (always white, like paper) ---------- */
+.paper{width:794px;min-height:1123px;margin:0 auto;background:#fff;color:#111;padding:34px 44px 28px;font-size:16px}
+.paper h1{text-align:center;font-size:26px;font-weight:800;margin:0 0 12px}
+.paper h3{text-align:center;font-size:18px;font-weight:600;margin:0 0 18px}
+.paper h3 span{border-bottom:2px solid #111;padding-bottom:2px}
+.row{position:relative;line-height:30px;margin-bottom:4px;cursor:text;min-height:var(--ln);background:linear-gradient(to bottom,transparent 29px,#8a8a8a 29px,#8a8a8a 30px) 0 0/100% 30px}
+.row .n{font-weight:800;margin-right:8px}
+.row .v{color:#1b2fd6;font-weight:600;outline:none;padding-left:8px;white-space:pre-wrap;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.v:empty{text-decoration:none}
+.v:empty::after{content:attr(data-ph);color:#b5b5b5;font-weight:400}
+.sig{width:250px;margin:0 0 0 auto;text-align:center}
+.sig{margin-top:12px!important}
+.fl{font-size:13px;color:var(--mut)}
+.fld{width:100%;font:inherit;font-size:14px;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);margin:3px 0 12px;resize:vertical}
+.slot{display:flex;align-items:center;justify-content:center;height:54px;border:2px dashed #9aa4c8;border-radius:6px;color:#6670a0;font-size:13px;cursor:pointer;position:relative;overflow:hidden}
+.slot input{display:none}
+.slot img{max-width:100%;max-height:100%}
+.sig .x{display:none;position:absolute;margin:-8px 0 0 -26px;padding:0 6px;font-size:12px}
+.sig.has .x{display:inline-block}
+.sig.has .slot{border:0}
+.cap{font-weight:600;margin-top:4px;text-align:right}
+.paper.snap .slot:not(.on),.paper.snap .x{display:none}
+.paper.snap .slot{border:0}
+.paper.snap .v:empty::after{content:""}
+@media print{body{background:#fff}.noprint{display:none!important}.paper{margin:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel noprint">
+    <h2>प्रतिवेदन बनाएँ</h2>
+    <div class="bar">
+      <button class="pri" id="pdfBtn">PDF बनाएँ और सेव करें</button>
+      <button id="clearBtn">सभी प्रविष्टियाँ खाली करें</button>
+      <span id="msg">नीचे नीले अक्षरों वाली प्रविष्टियों पर क्लिक करके बदलें।</span>
+    </div>
+  </div>
+  <div class="panel noprint">
+    <h2>चित्र संलग्न करें (PDF में फ़ॉर्म के बाद जुड़ेंगे)</h2>
+    <label class="btn">चित्र चुनें<input id="attIn" type="file" accept="image/*" multiple hidden></label>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+
+  <div class="panel noprint"><h2>विवरण भरें (नीले अक्षरों वाले भाग)</h2><div id="fields"></div></div>
+  <div class="scroll">
+  <div class="paper" id="paper">
+    <h1>उत्तराखण्ड आवास एवं विकास परिषद</h1>
+    <h3><span>आवास एवं विकास क्षेत्रान्तर्गत अनाधिकृत के संबंध में प्रतिवेदन</span></h3>
+
+    <div class="row" style="--ln:30px"><span class="n">1.</span>निर्माण कार्य/विकास कार्य प्रारम्भ करने का सम्भावित दिनांक<span class="v" contenteditable data-ph="दिनांक">प्रत्यावेदन से पूर्व</span></div>
+    <div class="row" style="--ln:30px"><span class="n">2.</span>अनाधिकृत निर्माण/विकास मालूम होने का दिनांक<span class="v" contenteditable data-ph="दिनांक">12/11/2026</span></div>
+    <div class="row" style="--ln:120px"><span class="n">3.</span>अनाधिकृत निर्माण/विकास कार्य का स्थान<span class="v" contenteditable data-ph="स्थान लिखें">भूखण्ड संख्या- S-5, शिवालिक नगर योजना (आवास विकास), बहादराबाद</span></div>
+    <div class="row" style="--ln:150px;margin-top:14px"><span class="n">4.</span>अनाधिकृत निर्माण/विकास कार्य का विवरण<span class="v" contenteditable data-ph="विवरण लिखें">पूर्व निर्मित भवन में व्यावसायिक प्रयोजनार्थ भूतल पर M/S डिवाइन इंजीनियरिंग नाम से दुकान का संचालन किया जा रहा है। मौके/स्थल पर भवन की मानचित्र स्वीकृति नही दिखाई गयी।</span></div>
+    <div class="row" style="--ln:90px;margin-top:14px"><span class="n">5.</span>पट्टेदार या निर्माणकर्ता का नाम एवं पता<span class="v" contenteditable data-ph="नाम एवं पता">(.............................), भूखण्ड संख्या- S-5, शिवालिक नगर योजना (आवास विकास), बहादराबाद</span></div>
+    <div class="row" style="--ln:60px"><span class="n">6.</span>प्रस्तावित कार्यवाही<span class="v" contenteditable data-ph="कार्यवाही">धारा 82, 83 के अंतर्गत</span></div>
+    <div class="row" style="--ln:30px"><span class="n">7.</span>प्रतिवेदन करने वाले का नाम, पद एवं सिफारिश<span class="v" contenteditable data-ph="नाम, पद">अनुज कुमार (अवर अभियन्ता)</span></div>
+
+    <div class="sig" style="margin-top:50px"><label class="slot"><input type="file" accept="image/*"><span>+ हस्ताक्षर चित्र जोड़ें</span></label><button class="x">✕</button><div class="cap">सूचना देने वाले के हस्ताक्षर</div></div>
+    <div class="sig" style="margin-top:44px"><label class="slot"><input type="file" accept="image/*"><span>+ हस्ताक्षर चित्र जोड़ें</span></label><button class="x">✕</button><div class="cap">अवर अभियन्ता</div></div>
+    <div class="sig" style="margin-top:44px"><label class="slot"><input type="file" accept="image/*"><span>+ हस्ताक्षर चित्र जोड़ें</span></label><button class="x">✕</button><div class="cap">सहायक अभियन्ता</div></div>
+  </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const paper = $('#paper'), msg = t => $('#msg').textContent = t;
+const readURL = f => new Promise((r, j) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.onerror = j; fr.readAsDataURL(f); });
+const loadImg = u => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = u; });
+// re-encode an uploaded picture (bounded size, white background for photos) so it always draws into the PDF
+async function prep(f, max, png) {
+  const im = await loadImg(await readURL(f)), k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+  const x = c.getContext('2d'); if (!png) { x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); }
+  x.drawImage(im, 0, 0, c.width, c.height);
+  return c.toDataURL(png ? 'image/png' : 'image/jpeg', 0.9);
+}
+
+// clicking anywhere on a row edits it; paste as plain text
+$$('.row').forEach(r => r.addEventListener('click', e => {
+  const v = r.querySelector('.v'); if (e.target === v) return;
+  v.focus(); const g = getSelection(), rg = document.createRange(); rg.selectNodeContents(v); rg.collapse(false); g.removeAllRanges(); g.addRange(rg);
+}));
+$$('.v').forEach(v => v.addEventListener('paste', e => { e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); }));
+// data-entry fields, kept in sync with the blue text on the form
+$$('.row').forEach(r => {
+  const v = r.querySelector('.v'), l = document.createElement('div'), t = document.createElement('textarea');
+  l.className = 'fl'; l.textContent = r.querySelector('.n').textContent + ' ' + r.childNodes[1].textContent;
+  t.className = 'fld'; t.rows = parseInt(r.style.getPropertyValue('--ln')) > 80 ? 3 : 1; t.value = v.textContent; t.placeholder = v.dataset.ph;
+  t.oninput = () => { v.textContent = t.value; };
+  v.addEventListener('input', () => { t.value = v.textContent; });
+  v.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  $('#fields').append(l, t);
+});
+// item 2 is a date: calendar picker in the panel, shown on the form as DD/MM/YYYY
+(() => {
+  const v = $$('.v')[1], t = $$('.fld')[1], d = document.createElement('input');
+  d.type = 'date'; d.className = 'fld'; t.replaceWith(d); v.dataset.ph = 'DD/MM/YYYY';
+  const toForm = s => s ? s.split('-').reverse().join('/') : '';
+  const toDate = s => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim()); return m ? m[3] + '-' + m[2] + '-' + m[1] : ''; };
+  d.value = toDate(v.textContent);
+  d.oninput = () => { v.textContent = toForm(d.value); };
+  v.addEventListener('input', () => { d.value = toDate(v.textContent); });
+  v.addEventListener('beforeinput', e => {
+    if (e.data && (/[^0-9\/]/.test(e.data) || (v.textContent.length + e.data.length > 10 && getSelection().isCollapsed))) e.preventDefault();
+  });
+})();
+$('#clearBtn').onclick = () => { $$('.v').forEach(v => v.textContent = ''); $$('.fld').forEach(t => t.value = ''); };
+
+// signature slots
+$$('.sig').forEach(s => {
+  const inp = s.querySelector('input'), slot = s.querySelector('.slot'), label = slot.querySelector('span');
+  inp.onchange = async () => {
+    if (!inp.files[0]) return;
+    let url; try { url = await prep(inp.files[0], 900, true); } catch (e) { msg('यह चित्र प्रारूप समर्थित नहीं है।'); return; }
+    slot.querySelectorAll('img').forEach(i => i.remove());
+    const im = new Image(); im.src = url; slot.appendChild(im);
+    label.style.display = 'none'; slot.classList.add('on'); s.classList.add('has');
+  };
+  s.querySelector('.x').onclick = () => {
+    slot.querySelectorAll('img').forEach(i => i.remove()); inp.value = '';
+    label.style.display = ''; slot.classList.remove('on'); s.classList.remove('has');
+  };
+});
+
+// attachments
+const atts = [];
+function drawThumbs() {
+  const box = $('#thumbs'); box.innerHTML = '';
+  atts.forEach((u, i) => {
+    const d = document.createElement('div'); d.className = 'th';
+    const im = new Image(); im.src = u; const b = document.createElement('button'); b.textContent = '✕';
+    b.onclick = () => { atts.splice(i, 1); drawThumbs(); };
+    d.append(im, b); box.appendChild(d);
+  });
+}
+$('#attIn').onchange = async e => {
+  for (const f of [...e.target.files]) { try { atts.push(await prep(f, 2000, false)); } catch (er) { msg('एक चित्र प्रारूप समर्थित नहीं है: ' + f.name); } }
+  e.target.value = ''; drawThumbs();
+};
+
+async function makePdf() {
+  await document.fonts.ready;
+  await Promise.all([...paper.querySelectorAll('img')].map(i => i.decode ? i.decode().catch(() => {}) : 0));
+  paper.classList.add('snap');
+  let c;
+  try { c = await html2canvas(paper, { scale: 2, backgroundColor: '#fff', useCORS: true, windowWidth: 1000, onclone: d => { const p = d.getElementById('paper'); p.style.transform = 'none'; p.parentElement.style.cssText = 'height:auto;overflow:visible'; } }); }
+  finally { paper.classList.remove('snap'); }
+  const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+  // always one page: shrink to fit if the form is taller than A4
+  const img = c.toDataURL('image/jpeg', 0.92), h0 = c.height * 210 / c.width, k = Math.min(1, 297 / h0);
+  pdf.addImage(img, 'JPEG', (210 - 210 * k) / 2, 0, 210 * k, h0 * k);
+  for (let n = 0; n < atts.length; n++) {
+    const im = await loadImg(atts[n]), W = 1588, H = 2246, cv = document.createElement('canvas');
+    cv.width = W; cv.height = H; const x = cv.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#111'; x.textAlign = 'center'; x.font = '700 46px "Noto Sans Devanagari", sans-serif';
+    x.fillText('संलग्न चित्र – ' + (n + 1), W / 2, 110);
+    const bw = W - 160, bh = H - 300, k = Math.min(bw / im.width, bh / im.height), w = im.width * k, hh = im.height * k;
+    x.drawImage(im, (W - w) / 2, 170 + (bh - hh) / 2, w, hh);
+    pdf.addPage(); pdf.addImage(cv.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 210, 297);
+  }
+  return pdf.output('blob');
+}
+
+async function saveBlob(blob, name) {
+  let d = null; try { d = window.claude && await window.claude.use('downloads'); } catch (e) {}
+  if (d) return d.save({ filename: name, data: blob });
+  const f = new File([blob], name, { type: 'application/pdf' });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: 'प्रतिवेदन' }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const fit = () => { const w = $('.scroll'), k = Math.min(1, w.clientWidth / 794); paper.style.transformOrigin = '0 0'; paper.style.transform = k < 1 ? 'scale(' + k + ')' : ''; w.style.height = paper.offsetHeight * k + 'px'; };
+addEventListener('resize', fit); document.addEventListener('input', fit); fit();
+try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+
+$('#pdfBtn').onclick = async () => {
+  const b = $('#pdfBtn'); b.disabled = true; msg('PDF बन रही है…');
+  try {
+    const blob = await makePdf();
+    await saveBlob(blob, 'anadhikrit-nirman-pratiwedan.pdf'); msg('PDF तैयार।');
+  } catch (e) { msg(e && e.code === 'declined' ? 'सेव रद्द किया गया।' : 'PDF बनाने में समस्या आई, दोबारा प्रयास करें।'); }
+  b.disabled = false;
+};
+</script>
+</body>
+</html>
